@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block content %}
+
+<center><h1> Audio Bias Detection with Audio Bias Score (ABS).</h1></center>
+
+<section class="explanation">
+  <p>
+    This tool computes an <strong>Audio Bias Score</strong> to evaluate gender bias in speech datasets based on acoustic patterns. It uses raw statistical features of male and female speakers to identify hidden imbalances in the dataset — before any model is trained.
+  </p>
+
+  <div class="formula-box">
+    </center><h2>Audio Bias Score Formula</h2></center>
+    <p class="equation">
+      Audio Bias Score = −0.0125 + (0.0001 × C<sub>male</sub>) − (0.0001 × C<sub>female</sub>) + (0.0005 × V<sub>male</sub>) − (0.0005 × V<sub>female</sub>) + (0.0044 × E<sub>male</sub>) − (0.0034 × E<sub>female</sub>) − (0.0004 × A<sub>male</sub>) − (0.0004 × A<sub>female</sub>) − (0.0334 × P<sub>male</sub>) − (0.0325 × P<sub>female</sub>) + (0.0002 × P<sub>male</sub><sup>2</sup>) + (0.0002 × P<sub>female</sub><sup>2</sup>) − (0.0002 × P<sub>male</sub> × P<sub>female</sub>)
+    </p>
+    <p><strong>Score Range:</strong> 
+        <ol>+10 = 100% male biased dataset.</ol>
+        <ol>−10 = 100% female bias dataset.</ol>
+        <ol> 0 = gender-neutral dataset.</ol></p>
+    <p><strong>Clarification:</strong> For ease of interpretability, the audio bias score is scaled to a [−10, +10] range using <em>Min-Max scaling</em>, with dataset-specific min and max values for calibration.</p>
+  </div>
+
+  <div class="feature-explanation">
+    <center><h2>FEATURE DEFINITIONS</h2></center>
+    <ul class="bias-list">
+      <li><div class="text-content"><strong>C<sub>male</sub></strong>: Number of male speaker audios</div></li>
+      <li><div class="text-content"><strong>C<sub>female</sub></strong>: Number of female speaker audios</div></li>
+      <li><div class="text-content"><strong>V<sub>male</sub></strong>: Voice activity of male speakers (minutes)</div></li>
+      <li><div class="text-content"><strong>V<sub>female</sub></strong>: Voice activity of female speakers (minutes)</div></li>
+      <li><div class="text-content"><strong>E<sub>male</sub></strong>: Std. deviation of energy (male)</div></li>
+      <li><div class="text-content"><strong>E<sub>female</sub></strong>: Std. deviation of energy (female)</div></li>
+      <li><div class="text-content"><strong>A<sub>male</sub></strong>: Std. deviation of amplitude (male)</div></li>
+      <li><div class="text-content"><strong>A<sub>female</sub></strong>: Std. deviation of amplitude (female)</div></li>
+      <li><div class="text-content"><strong>P<sub>male</sub></strong>: Std. deviation of pitch (male)</div></li>
+      <li><div class="text-content"><strong>P<sub>female</sub></strong>: Std. deviation of pitch (female)</div></li>
+    </ul>
+  </div>
+</section>
+
+<form method="post">
+  <center><h2> ENTER FEATURE VALUES</h2></center>
+  {% for field in ['count_male', 'count_female', 'voice_activity_male', 'voice_activity_female',
+                   'Std. deviation of energy_male', 'Std. deviation of energy_female', 'Std. deviation of amplitude_male', 'Std. deviation of amplitude_female',
+                   'Std. deviation of pitch_male', 'Std. deviation of pitch_female'] %}
+    <label>{{ field.replace("_", " ").title() }}:
+      <input type="number" step="any" name="{{ field }}" required>
+    </label><br>
+  {% endfor %}
+  <br>
+  <input type="submit" value="Calculate Score">
+</form>
+
+{% if results %}
+  <hr>
+    <center><h3>Input Summary</h3></center>
+  <table class="input-summary">
+    <thead>
+      <tr><th>Feature</th><th>Value</th></tr>
+    </thead>
+    <tbody>
+      {% for key, value in input_values.items() %}
+        <tr>
+          <td>{{ key.replace('_', ' ').title() }}</td>
+          <td>{{ value }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <hr>
+
+<div class="results">
+<center><h3>Bias Detection Results</h3></center>
+  <p class="bias-highlight"><strong>{{ results.bias_message }}</strong></p>
+</div>
+
+
+
+{% endif %}
+
+
+{% endblock %}

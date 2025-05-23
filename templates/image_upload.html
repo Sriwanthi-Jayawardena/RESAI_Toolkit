@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+  <h2 class="main-title">Upload Preprocessed CSV</h2>
+  <p>Please upload a CSV file with features: <code>Object_Class, Gender, Relative_Size, 3D_Distance, Normalized_Depth, Scene_Similarity_Bias</code></p>
+
+  <form method="POST" enctype="multipart/form-data" id="upload-form">
+    <input type="file" name="csv_file" accept=".csv" required id="csv-input" class="csv-input">
+    <br><br>
+    <button type="button" class="primary-btn" onclick="confirmFile()">Upload File</button>
+  </form>
+
+  <div id="confirm-section" style="display:none; margin-top:20px;">
+    <p><strong>📂 File selected:</strong> <span id="file-name" style="color:green;"></span></p>
+    <p>Is this the correct file?</p>
+    <button onclick="submitForm()" class="success-btn">✅ Yes, Analyze Image Bias</button>
+    <button onclick="reselectFile()" class="danger-btn">❌ No, Upload Again</button>
+  </div>
+</div>
+
+<style>
+  .container {
+    background: #f9f9ff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 0 10px #ccc;
+    margin-top: 30px;
+  }
+  .main-title {
+    font-size: 26px;
+    color: #0b3d91;
+    margin-bottom: 10px;
+  }
+  .csv-input {
+    padding: 10px;
+    font-size: 16px;
+  }
+  .primary-btn {
+    background-color: #0057ff;
+    color: white;
+    padding: 10px 16px;
+    font-size: 15px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .primary-btn:hover {
+    background-color: #0040c1;
+  }
+  .success-btn {
+    background-color: #28a745;
+    color: white;
+    padding: 10px 16px;
+    font-size: 15px;
+    border: none;
+    border-radius: 6px;
+    margin-right: 10px;
+    cursor: pointer;
+  }
+  .success-btn:hover {
+    background-color: #1e7e34;
+  }
+  .danger-btn {
+    background-color: #dc3545;
+    color: white;
+    padding: 10px 16px;
+    font-size: 15px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .danger-btn:hover {
+    background-color: #b02a37;
+  }
+</style>
+
+<script>
+  function confirmFile() {
+    const input = document.getElementById("csv-input");
+    if (input.files.length > 0) {
+      document.getElementById("file-name").textContent = input.files[0].name;
+      document.getElementById("confirm-section").style.display = "block";
+    }
+  }
+
+  function submitForm() {
+    document.getElementById("upload-form").submit();
+  }
+
+  function reselectFile() {
+    document.getElementById("csv-input").value = "";
+    document.getElementById("confirm-section").style.display = "none";
+  }
+</script>
+{% endblock %}

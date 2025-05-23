@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+<div class="info-box">
+<center><h1>WELCOME TO RESAI TOOLKIT!</h1></center>
+  <p>
+    Artificial Intelligence (AI) is shaping many aspects of our lives, but it can also unintentionally reflect or amplify gender bias—especially when working with different types of data like text, images, audio, and video.
+    The RESAI Toolkit is designed to help you explore and understand how gender bias appears and behaves across these four data modalities through easy-to-understand, interactive metrics.
+  </p>
+  <p>
+    Here’s what you can explore on this site:
+  </p>
+
+  <ul class="bias-list">
+    <li>
+      <img src="{{ url_for('static', filename='images/cabm.png') }}" alt="Text Bias">
+      <div class="text-content">
+        <strong>Text Bias Detection:</strong> Using the Context-Aware Bias Metric (CABM), see how subtle biases in language models like BERT are identified by analyzing word relationships, sentence meaning shifts, and statistical measures.
+      </div>
+    </li>
+    <li>
+      <img src="{{ url_for('static', filename='images/ubm.png') }}" alt="Image Bias">
+      <div class="text-content">
+        <strong>Image Bias Analysis:</strong> The Unified Bias Metric (UBM) reveals bias by examining objects’ features (like size and distance) and the overall scene context using advanced image embeddings. Visual explanations help you understand what drives bias.
+      </div>
+    </li>
+    <li>
+      <img src="{{ url_for('static', filename='images/abs.png') }}" alt="Audio Bias">
+      <div class="text-content">
+        <strong>Audio Bias Measurement:</strong> Dive into the Audio Bias Score (ABS) that studies raw sound features such as pitch and energy patterns to quantify gender bias in speech, using interpretable models highlighting key contributing factors.
+      </div>
+    </li>
+    <li>
+      <img src="{{ url_for('static', filename='images/cgbs.png') }}" alt="Video Bias">
+      <div class="text-content">
+        <strong>Video Bias Scoring:</strong> Explore a multi-dimensional video metric capturing bias from framing, visual feature differences, and action category imbalances across genders.
+      </div>
+    </li>
+  </ul>
+
+  <p>
+    Each metric is backed by rigorous statistical tests and machine learning explanations, making it easier to see where bias exists and why. This toolkit provides a hands-on way to uncover hidden biases and supports building fairer, more accountable AI systems.
+  </p>
+</div>
+
+{% endblock %}

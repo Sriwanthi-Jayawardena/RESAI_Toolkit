@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Title -->
+<center><h2 style="margin-top: 30px; font-size: 2rem;">🧠 Context-Aware Bias Detection (CABM)</h2></center>
+
+<!-- Overview Section -->
+<section class="explanation" style="margin-top: 25px;">
+  <h3>📌 What is CABM?</h3>
+  <p>
+    The <strong>Context-Aware Bias Metric (CABM)</strong> is a custom metric designed to detect gender bias in contextual word embeddings like BERT. Unlike traditional methods, it blends:
+  </p>
+  <ul class="bias-list">
+    <li><strong>PMI Bias:</strong> Statistical co-occurrence between pronouns and occupations.</li>
+    <li><strong>Cosine Bias:</strong> Semantic similarity between word vectors.</li>
+    <li><strong>Contextual Bias:</strong> Meaning shift based on sentence context.</li>
+  </ul>
+  <p class="formula-box">
+    <strong>Score Formula:</strong><br>
+    <code style="font-family: monospace; font-size: 1.05em; color: #333;">
+      CABM = w₁ × PMI_Bias + w₂ × Cosine_Bias + w₃ × Contextual_Bias
+    </code>
+  </p>
+</section>
+
+<!-- Upload Section -->
+<section class="upload-form" style="margin-top: 30px;">
+  <form method="POST" enctype="multipart/form-data">
+    <label><strong>Select Analysis Mode:</strong></label><br>
+    <div class="radio-options">
+      <label><input type="radio" name="mode" value="features_only" checked> Feature Dataset</label>
+      <label><input type="radio" name="mode" value="full_pipeline"> Original Dataset</label>
+    </div>
+
+    <label for="file" style="margin-top: 20px;"><strong>Upload CSV File:</strong></label>
+    <input type="file" name="file" id="file" accept=".csv" required>
+
+    <br>
+    <input type="submit" value="🔍 Run CABM Analysis">
+  </form>
+</section>
+
+<!-- Results Section -->
+{% if results %}
+  {% if results is string %}
+    <p style="color: red; margin-top: 20px;">{{ results }}</p>
+  {% else %}
+    <section class="results" style="margin-top: 40px;">
+      <h3>📊 Bias Detection Results</h3>
+      <table class="result-table">
+        <thead>
+          <tr>
+            <th>Occupation</th>
+            <th>CABM Score</th>
+            <th>Bias Category</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in results %}
+          <tr>
+            <td>{{ row['occupation'] }}</td>
+            <td>{{ row['Gender_Bias_Score'] | round(4) }}</td>
+            <td>
+              {% if row['Bias_Category'] == 'Male-Biased' %}
+                <span style="color: #0066cc; font-weight: bold;">{{ row['Bias_Category'] }}</span>
+              {% elif row['Bias_Category'] == 'Female-Biased' %}
+                <span style="color: #cc0033; font-weight: bold;">{{ row['Bias_Category'] }}</span>
+              {% else %}
+                <span style="color: #555;">{{ row['Bias_Category'] }}</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+  {% endif %}
+{% endif %}
+
+<!-- Footer Notes -->
+<div style="margin-top: 40px; font-size: 0.9em; color: #555;">
+  <p>✅ CABM uncovers subtle gender bias at the sentence level — crucial for fairness in NLP systems.</p>
+</div>
+
+{% endblock %}

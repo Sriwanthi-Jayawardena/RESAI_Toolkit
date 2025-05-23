@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>📤 Upload Video Bias Input Files</h2>
+
+<form action="/video/upload" method="POST" enctype="multipart/form-data" class="upload-form">
+    <label for="frame_file">📁 Frame-Level Feature CSV:</label>
+    <input type="file" name="frame_file" id="frame_file" required>
+
+    <label for="embed_file">🧠 Embedding Feature CSV:</label>
+    <input type="file" name="embed_file" id="embed_file" required>
+
+    <label for="gender_file">⚧️ Gender Metadata CSV:</label>
+    <input type="file" name="gender_file" id="gender_file" required>
+
+    <br>
+    <input type="submit" value="Compute Bias Metrics">
+</form>
+
+{% if results %}
+    <h2 style="margin-top: 40px;">🎯 Action Category Bias Summary</h2>
+    <table border="1" cellpadding="8" cellspacing="0">
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Bias Score (PCA-Weighted)</th>
+                <th>Biased Toward</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in results %}
+            <tr>
+                <td>{{ row.category }}</td>
+                <td>{{ "%.3f"|format(row.bias_score) }}</td>
+                <td>{{ row.bias_direction|capitalize }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+
+{% endblock %}

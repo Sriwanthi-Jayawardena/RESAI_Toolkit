@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>RESAI Toolkit</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header class="main-header">
+        <div class="branding">
+            <h1>RESAI TOOLKIT</h1>
+            <h2 class="subheading">Framework for Cross-Modality Bias Detection </h2>
+        </div>
+        <nav class="navbar">
+            <a href="/">Home</a>
+            <a href="/text">Text</a>
+            <a href="/image">Image</a>
+            <a href="/audio">Audio</a>
+            <a href="/video">Video</a>
+            
+            
+        </nav>
+    </header>
+    <hr>
+    {% block content %}{% endblock %}
+</body>
+</html>

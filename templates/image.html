@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+
+  <!-- Title and Updated Subtitle -->
+  <h1 class="main-title">🖼️ Image Bias Analyzer</h1>
+  <p class="subtitle">
+    You can upload your preprocessed CSV file here and get the analysis of the bias in your image datasets.
+    Below we have mentioned the steps of preprocessing your dataset.
+    <br><br>
+    📌 We are currently working on providing a full pipeline for preprocessing — it’s still in progress!
+  </p>
+
+  <!-- Button to Import and Analyze -->
+  <div style="margin-bottom: 40px;">
+    <a href="{{ url_for('image_upload') }}">
+      <button class="primary-btn">📁 Import CSV and Analyze</button>
+    </a>
+  </div>
+
+  <!-- Metric Explanation -->
+  <div class="card">
+    <h2>📊 About the Metric (UBM - Unified Bias Metric)</h2>
+    <p>This approach uses SHAP-based feature importance, PCA-derived spatial variance, and Ridge Regression to weight bias components.</p>
+    <button onclick="toggleMethodology()" class="primary-btn">See Full Methodology</button>
+    <div id="methodology-details" style="display: none;">
+      <h3>🧠 Step-by-Step Calculation</h3>
+      <ul>
+        <li><strong>SHAP + PCA?</strong><br>
+          SHAP explains <i>feature importance</i> based on model predictions. PCA captures <i>variance across spatial dimensions</i>.
+        </li>
+        <li><strong>Object Influence Score (OIS):</strong><br>
+          <code>OIS = w₁ × Relative_Size + w₂ × 3D_Distance + w₃ × Normalized_Depth</code>
+        </li>
+        <li><strong>Scene Similarity Bias (SSB):</strong><br>
+          <code>SSB = CosineDistance(Scene_Embedding, V_Male) - CosineDistance(Scene_Embedding, V_Female)</code>
+        </li>
+        <li><strong>Unified Bias Score (UBM):</strong><br>
+          <code>Bias_Score = [α × (OISₘ - OIS𝒇) + β × (SSBₘ - SSB𝒇)] / [α × (OISₘ + OIS𝒇) + β × (SSBₘ + SSB𝒇) + ε]</code>
+        </li>
+        <li><strong>Bias Types:</strong>
+          <ul>
+            <li>Bias &gt; +Threshold → <b style="color:blue">Male-Biased 🔵</b></li>
+            <li>Bias &lt; -Threshold → <b style="color:red">Female-Biased 🔴</b></li>
+            <li>Otherwise → <b>Neutral ⚪</b></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Preprocessing Steps -->
+  <div class="card">
+    <h2>⚙️ Preprocessing Instructions</h2>
+    <p>We use the following pre-trained models to extract contextual features:</p>
+    <ul>
+      <li><b>YOLOv8</b>: Detects objects and persons, returns bounding boxes and labels.</li>
+      <li><b>SAM (Segment Anything Model)</b>: Improves object masks for better size estimates.</li>
+      <li><b>DepthAnything v2</b>: Generates per-pixel depth maps to compute 3D spatial distances.</li>
+      <li><b>CLIP & Places365</b>: Extract scene embeddings to compute semantic alignment with gendered environments.</li>
+    </ul>
+    <p>These models provide the features used in OIS and SSB. Your CSV must contain:</p>
+    <code>Object_Class, Gender, Relative_Size, 3D_Distance, Normalized_Depth, Scene_Similarity_Bias</code>
+    <pre><code>
+# Sample Python Snippet
+import pandas as pd
+df = pd.read_csv("your_data.csv")
+required_cols = ["Object_Class", "Gender", "Relative_Size", "3D_Distance", "Normalized_Depth", "Scene_Similarity_Bias"]
+df = df[required_cols]
+    </code></pre>
+  </div>
+</div>
+
+<!-- Toggle Methodology JS -->
+<script>
+  function toggleMethodology() {
+    var section = document.getElementById("methodology-details");
+    section.style.display = section.style.display === "none" ? "block" : "none";
+  }
+</script>
+
+<!-- Styling -->
+<style>
+  .container {
+    padding: 30px;
+  }
+  .main-title {
+    font-size: 30px;
+    color: #333;
+    margin-bottom: 10px;
+  }
+  .subtitle {
+    font-size: 16px;
+    margin-bottom: 25px;
+  }
+  .card {
+    background: #ffffff;
+    padding: 20px;
+    border-left: 6px solid #ffb291;
+    border-radius: 8px;
+    margin-bottom: 40px;
+  }
+  .primary-btn {
+    background-color: #333;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+  }
+  .primary-btn:hover {
+    background-color: #5f5e5e;
+  }
+  .code-box, pre code {
+    background-color: #f4f4f4;
+    padding: 10px;
+    border-radius: 4px;
+    font-family: monospace;
+    display: block;
+  }
+</style>
+{% endblock %}
