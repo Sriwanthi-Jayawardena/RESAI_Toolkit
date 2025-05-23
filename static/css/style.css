@@ -246,7 +246,7 @@ h3 {
 .bias-highlight {
   font-size: 2.0rem;
   font-weight: bold;
-  background-color: #fff6e0; /* Light blue */
+  background-color: #faeee9e4; 
   border-left: 6px solid #ffb291;
   padding: 15px 20px;
   margin-top: 15px;
@@ -378,7 +378,7 @@ h3 {
 }
 
 .result-table th {
-  background-color: #f6d38e;
+  background-color: #ffb291;
 }
 
 .result-table td {
@@ -388,8 +388,8 @@ h3 {
 .formula-box {
   margin-top: 15px;
   padding: 15px;
-  background-color: #fff6e0;
-  border-left: 5px solid #f6d38e;
+  background-color: #faeee9e4;
+  border-left: 5px solid #ffb291;
   border-radius: 5px;
 }
 

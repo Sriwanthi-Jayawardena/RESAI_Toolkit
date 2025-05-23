@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 
-<center><h1> Audio Bias Detection with Audio Bias Score (ABS).</h1></center>
+<center><h1>𝄞 Audio Bias Detection with Audio Bias Score (ABS).</h1></center>
 
 <section class="explanation">
   <p>
@@ -9,7 +9,7 @@
   </p>
 
   <div class="formula-box">
-    </center><h2>Audio Bias Score Formula</h2></center>
+    </center><h2>𝄞 Audio Bias Score Formula</h2></center>
     <p class="equation">
       Audio Bias Score = −0.0125 + (0.0001 × C<sub>male</sub>) − (0.0001 × C<sub>female</sub>) + (0.0005 × V<sub>male</sub>) − (0.0005 × V<sub>female</sub>) + (0.0044 × E<sub>male</sub>) − (0.0034 × E<sub>female</sub>) − (0.0004 × A<sub>male</sub>) − (0.0004 × A<sub>female</sub>) − (0.0334 × P<sub>male</sub>) − (0.0325 × P<sub>female</sub>) + (0.0002 × P<sub>male</sub><sup>2</sup>) + (0.0002 × P<sub>female</sub><sup>2</sup>) − (0.0002 × P<sub>male</sub> × P<sub>female</sub>)
     </p>
@@ -21,7 +21,7 @@
   </div>
 
   <div class="feature-explanation">
-    <center><h2>FEATURE DEFINITIONS</h2></center>
+    <center><h2>𝄞 FEATURE DEFINITIONS</h2></center>
     <ul class="bias-list">
       <li><div class="text-content"><strong>C<sub>male</sub></strong>: Number of male speaker audios</div></li>
       <li><div class="text-content"><strong>C<sub>female</sub></strong>: Number of female speaker audios</div></li>
@@ -38,7 +38,7 @@
 </section>
 
 <form method="post">
-  <center><h2> ENTER FEATURE VALUES</h2></center>
+  <center><h2> 𝄞 ENTER FEATURE VALUES</h2></center>
   {% for field in ['count_male', 'count_female', 'voice_activity_male', 'voice_activity_female',
                    'Std. deviation of energy_male', 'Std. deviation of energy_female', 'Std. deviation of amplitude_male', 'Std. deviation of amplitude_female',
                    'Std. deviation of pitch_male', 'Std. deviation of pitch_female'] %}
@@ -52,7 +52,7 @@
 
 {% if results %}
   <hr>
-    <center><h3>Input Summary</h3></center>
+    <center><h3>𝄞 INPUT SUMMARY</h3></center>
   <table class="input-summary">
     <thead>
       <tr><th>Feature</th><th>Value</th></tr>
@@ -69,7 +69,7 @@
   <hr>
 
 <div class="results">
-<center><h3>Bias Detection Results</h3></center>
+<center><h3>𝄞 RESULTS</h3></center>
   <p class="bias-highlight"><strong>{{ results.bias_message }}</strong></p>
 </div>
 
