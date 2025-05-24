@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+% extends "base.html" %}
 {% block content %}
 <div class="container">
 
@@ -26,27 +26,64 @@
     <div id="methodology-details" style="display: none;">
       <h3>🧠 Step-by-Step Calculation</h3>
       <ul>
-        <li><strong>SHAP + PCA?</strong><br>
-          SHAP explains <i>feature importance</i> based on model predictions. PCA captures <i>variance across spatial dimensions</i>.
+
+        <li><strong>🔍 SHAP + PCA: Feature Weighting Strategy</strong>
+          <p>
+            We use SHAP (SHapley Additive exPlanations) to understand the importance of each feature in predicting gender, based on how much each feature contributes to a model’s decision.
+            <br><br>
+            PCA (Principal Component Analysis) is used alongside SHAP to capture the variance and structural patterns in the spatial features. By combining SHAP (60%) and PCA (40%) weights, we ensure that both interpretability and variance structure are reflected in the final bias metric.
+          </p>
         </li>
-        <li><strong>Object Influence Score (OIS):</strong><br>
+
+        <li><strong>🧱 Object Influence Score (OIS):</strong><br>
           <code>OIS = w₁ × Relative_Size + w₂ × 3D_Distance + w₃ × Normalized_Depth</code>
-        </li>
-        <li><strong>Scene Similarity Bias (SSB):</strong><br>
-          <code>SSB = CosineDistance(Scene_Embedding, V_Male) - CosineDistance(Scene_Embedding, V_Female)</code>
-        </li>
-        <li><strong>Unified Bias Score (UBM):</strong><br>
-          <code>Bias_Score = [α × (OISₘ - OIS𝒇) + β × (SSBₘ - SSB𝒇)] / [α × (OISₘ + OIS𝒇) + β × (SSBₘ + SSB𝒇) + ε]</code>
-        </li>
-        <li><strong>Bias Types:</strong>
+          <p>
+            OIS measures how visually prominent each object is in an image. We selected these three core features for their relevance:
+          </p>
           <ul>
-            <li>Bias &gt; +Threshold → <b style="color:blue">Male-Biased 🔵</b></li>
-            <li>Bias &lt; -Threshold → <b style="color:red">Female-Biased 🔴</b></li>
-            <li>Otherwise → <b>Neutral ⚪</b></li>
+            <li><b>Relative_Size</b>: The proportion of image space occupied by the object — larger objects tend to attract more attention.</li>
+            <li><b>3D_Distance</b>: Estimated spatial distance between the object and the camera — closer objects tend to be more visually dominant.</li>
+            <li><b>Normalized_Depth</b>: Smoothed depth estimates from per-pixel depth maps, normalized across the dataset.</li>
           </ul>
+          <p>
+            The weights (w₁, w₂, w₃) are dynamically calculated based on SHAP + PCA results, adapting to the data distribution.
+          </p>
         </li>
+
+        <li><strong>🌄 Scene Similarity Bias (SSB):</strong><br>
+          <code>SSB = CosineDistance(Scene_Embedding, V_Male) - CosineDistance(Scene_Embedding, V_Female)</code>
+          <p>
+            This metric evaluates whether a scene is semantically closer to male-associated or female-associated contexts.
+            <br><br>
+            We use <b>CLIP</b> and <b>Places365</b> models to generate scene-level embeddings. These embeddings are compared against predefined male and female vectors using cosine distance. The result reflects if a scene is contextually biased toward a gender.
+          </p>
+        </li>
+
+        <li><strong>🧮 Unified Bias Score (UBM):</strong><br>
+          <code>
+            Bias_Score = [α × (OISₘ - OIS𝒇) + β × (SSBₘ - SSB𝒇)] / [α × (OISₘ + OIS𝒇) + β × (SSBₘ + SSB𝒇) + ε]
+          </code>
+          <p>
+            This final score aggregates both OIS and SSB into a single contextual bias value. The formula compares how much visual influence and scene alignment differ between males and females for each object class.
+            <br><br>
+            The parameters <b>α</b> and <b>β</b> are learned using <b>Ridge Regression</b> — a regularized model that ensures balanced influence between OIS and SSB.
+          </p>
+        </li>
+
+        <li><strong>📊 Bias Type Categorization:</strong>
+          <ul>
+            <li><b>Bias Score &gt; +Threshold</b> → <span style="color:blue"><b>Male-Biased 🔵</b></span></li>
+            <li><b>Bias Score &lt; -Threshold</b> → <span style="color:red"><b>Female-Biased 🔴</b></span></li>
+            <li><b>Else</b> → <b>Neutral ⚪</b></li>
+          </ul>
+          <p>
+            Thresholds are dynamically computed based on the standard deviation of scores. This ensures consistency across datasets with different score distributions.
+          </p>
+        </li>
+
       </ul>
     </div>
+
   </div>
 
   <!-- Preprocessing Steps -->
