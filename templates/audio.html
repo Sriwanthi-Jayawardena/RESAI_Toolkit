@@ -9,14 +9,14 @@
   </p>
 
   <div class="formula-box">
-    </center><h2>𝄞 Audio Bias Score Formula</h2></center>
+    <center><h2>𝄞 Audio Bias Score Formula</h2></center>
     <p class="equation">
       Audio Bias Score = −0.0125 + (0.0001 × C<sub>male</sub>) − (0.0001 × C<sub>female</sub>) + (0.0005 × V<sub>male</sub>) − (0.0005 × V<sub>female</sub>) + (0.0044 × E<sub>male</sub>) − (0.0034 × E<sub>female</sub>) − (0.0004 × A<sub>male</sub>) − (0.0004 × A<sub>female</sub>) − (0.0334 × P<sub>male</sub>) − (0.0325 × P<sub>female</sub>) + (0.0002 × P<sub>male</sub><sup>2</sup>) + (0.0002 × P<sub>female</sub><sup>2</sup>) − (0.0002 × P<sub>male</sub> × P<sub>female</sub>)
     </p>
     <p><strong>Score Range:</strong> 
         <ol>+10 = 100% male biased dataset.</ol>
         <ol>−10 = 100% female bias dataset.</ol>
-        <ol> 0 = gender-neutral dataset.</ol></p>
+        <ol>0 = gender-neutral dataset.</ol></p>
     <p><strong>Clarification:</strong> For ease of interpretability, the audio bias score is scaled to a [−10, +10] range using <em>Min-Max scaling</em>, with dataset-specific min and max values for calibration.</p>
   </div>
 
@@ -37,8 +37,14 @@
   </div>
 </section>
 
-<form method="post">
-  <center><h2> 𝄞 ENTER FEATURE VALUES</h2></center>
+<form method="post" id="biasForm">
+  <center><h2>𝄞 ENTER FEATURE VALUES</h2></center>
+
+  <!-- Demo Fill Button -->
+  <center>
+    <button type="button" onclick="fillDemoData()">Fill Form for Demonstration</button>
+  </center><br>
+
   {% for field in ['count_male', 'count_female', 'voice_activity_male', 'voice_activity_female',
                    'Std. deviation of energy_male', 'Std. deviation of energy_female', 'Std. deviation of amplitude_male', 'Std. deviation of amplitude_female',
                    'Std. deviation of pitch_male', 'Std. deviation of pitch_female'] %}
@@ -50,9 +56,32 @@
   <input type="submit" value="Calculate Score">
 </form>
 
+<!-- JS Script to Fill Form -->
+<script>
+  function fillDemoData() {
+    const demoValues = {
+      'count_male': 324,
+      'count_female': 105,
+      'voice_activity_male': 23.27933,
+      'voice_activity_female': 7.497833,
+      'Std. deviation of energy_male': 2340.06,
+      'Std. deviation of energy_female': 3595.41,
+      'Std. deviation of amplitude_male': 1192.15,
+      'Std. deviation of amplitude_female': 907.62,
+      'Std. deviation of pitch_male': 23.82,
+      'Std. deviation of pitch_female': 18.65
+    };
+
+    for (const [name, value] of Object.entries(demoValues)) {
+      const input = document.querySelector(`[name="${name}"]`);
+      if (input) input.value = value;
+    }
+  }
+</script>
+
 {% if results %}
   <hr>
-    <center><h3>𝄞 INPUT SUMMARY</h3></center>
+  <center><h3>𝄞 INPUT SUMMARY</h3></center>
   <table class="input-summary">
     <thead>
       <tr><th>Feature</th><th>Value</th></tr>
@@ -68,14 +97,10 @@
   </table>
   <hr>
 
-<div class="results">
-<center><h3>𝄞 RESULTS</h3></center>
-  <p class="bias-highlight"><strong>{{ results.bias_message }}</strong></p>
-</div>
-
-
-
+  <div class="results">
+    <center><h3>𝄞 RESULTS</h3></center>
+    <p class="bias-highlight"><strong>{{ results.bias_message }}</strong></p>
+  </div>
 {% endif %}
-
 
 {% endblock %}
