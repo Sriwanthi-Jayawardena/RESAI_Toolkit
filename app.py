@@ -101,7 +101,7 @@ def image_upload():
 
             # ✅ CSV VALIDATION STEP
             df = pd.read_csv(file_path)
-            required_cols = ["Object_Class", "Gender", "Relative_Size", "3D_Distance", "Normalized_Depth", "Scene_Similarity_Bias"]
+            required_cols = ["Object_Class", "Gender", "Relative_Size", "Inverted_3D_Distance", "Inverted_Normalized_Depth", "Scene_Similarity_Bias"]
             missing_cols = [col for col in required_cols if col not in df.columns]
             if missing_cols:
                 return f"❌ Missing columns in CSV: {', '.join(missing_cols)}", 400

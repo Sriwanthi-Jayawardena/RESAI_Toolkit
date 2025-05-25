@@ -1,7 +1,7 @@
 import pandas as pd
 from sklearn.linear_model import Ridge
 from sklearn.decomposition import PCA
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from imblearn.over_sampling import SMOTE
 import shap
 import numpy as np
@@ -144,42 +144,48 @@ def run_image_bias_pipeline_from_csv(csv_path):
     df = pd.read_csv(csv_path)
 
     # ✅ Column check
-    required_cols = ["Object_Class", "Gender", "Relative_Size", "3D_Distance", "Normalized_Depth", "Scene_Similarity_Bias"]
+    required_cols = [
+        "Object_Class",
+        "Gender",
+        "Relative_Size",
+        "Inverted_3D_Distance",
+        "Inverted_Normalized_Depth",
+        "Scene_Similarity_Bias"
+    ]
     missing_cols = [col for col in required_cols if col not in df.columns]
     if missing_cols:
+        print("CSV Columns Found:", df.columns.tolist())
         raise ValueError(f"❌ Missing columns in CSV: {', '.join(missing_cols)}")
 
     # ✅ Gender format handling
-    if df['Gender'].dtype == object or df['Gender'].astype(str).str.lower().isin(['male', 'female']).any():
-        df['Gender'] = df['Gender'].astype(str).str.lower().map({'male': 1, 'female': 0})
-    else:
-        df['Gender'] = pd.to_numeric(df['Gender'], errors='coerce')
+    df["Gender"] = df["Gender"].astype(str).str.strip().str.lower()
+    df["Gender"] = df["Gender"].map({
+        "male": 1, "m": 1, "1": 1,
+        "female": 0, "f": 0, "0": 0
+    })
 
-    df = df[df['Gender'].isin([0, 1])]
+    df = df[df["Gender"].isin([0, 1])]
     if df.empty:
         raise ValueError("❌ No valid gender data found (expected 'male', 'female', or encoded 0/1).")
 
-    # ✅ SMOTE-ready features
-    features = ["Relative_Size", "3D_Distance", "Normalized_Depth"]
+    # ✅ Feature selection (inverted!)
+    features = ["Relative_Size", "Inverted_3D_Distance", "Inverted_Normalized_Depth"]
     X = df[features]
     y = df["Gender"]
 
-    if X.empty or y.empty:
-        raise ValueError("❌ Cannot train model: Features or labels are empty after filtering.")
-
-    # ✅ SMOTE balancing
+    # ✅ SMOTE
     smote = SMOTE(random_state=42)
     X_balanced, y_balanced = smote.fit_resample(X, y)
 
     # ✅ Train model + SHAP
     model = xgb.XGBClassifier(use_label_encoder=False, eval_metric='logloss')
     model.fit(X_balanced, y_balanced)
-
     explainer = shap.Explainer(model, X_balanced)
     shap_values = explainer(X_balanced)
     shap_weights = np.abs(shap_values.values).mean(axis=0)
 
-    # ✅ PCA weighting
+    # ✅ PCA
+    from sklearn.decomposition import PCA
     pca = PCA(n_components=1)
     pca.fit(X_balanced)
     pca_weights = np.abs(pca.components_[0])
@@ -187,7 +193,7 @@ def run_image_bias_pipeline_from_csv(csv_path):
     combined_weights = 0.6 * shap_weights + 0.4 * pca_weights
     combined_weights /= combined_weights.sum()
 
-    # ✅ OIS computation
+    # ✅ OIS
     df["OIS"] = np.dot(df[features], combined_weights)
 
     grouped = df.groupby(["Object_Class", "Gender"]).agg(
@@ -201,7 +207,10 @@ def run_image_bias_pipeline_from_csv(csv_path):
 
     pivot["Label"] = np.where(pivot["OIS_Male"] >= pivot["OIS_Female"], 1, 0)
 
-    # ✅ Ridge Regression weights
+    # ✅ Ridge regression
+    from sklearn.linear_model import Ridge
+    from sklearn.preprocessing import StandardScaler
+
     X_ridge = pivot[["OIS_Male", "SSB_Male"]]
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X_ridge)
@@ -210,13 +219,18 @@ def run_image_bias_pipeline_from_csv(csv_path):
     ridge.fit(X_scaled, pivot["Label"])
     alpha, beta = np.abs(ridge.coef_) / np.sum(np.abs(ridge.coef_))
 
-    # ✅ Bias Score
+    # ✅ Bias score
     pivot["Bias_Score"] = ((alpha * (pivot["OIS_Male"] - pivot["OIS_Female"])) +
                            (beta * (pivot["SSB_Male"] - pivot["SSB_Female"]))) / (
                            (alpha * (pivot["OIS_Male"] + pivot["OIS_Female"])) +
                            (beta * (pivot["SSB_Male"] + pivot["SSB_Female"])) + 1e-6)
 
-    # ✅ Category assignment
+    # ✅ Thresholding
+    def calculate_dynamic_threshold(scores):
+        mean = np.mean(scores)
+        std = np.std(scores)
+        return mean + 0.5 * std, mean - 0.5 * std
+
     male_thresh, female_thresh = calculate_dynamic_threshold(pivot["Bias_Score"])
     pivot["Bias_Category"] = pivot["Bias_Score"].apply(
         lambda x: "Male-Biased" if x > male_thresh else ("Female-Biased" if x < female_thresh else "Neutral")
