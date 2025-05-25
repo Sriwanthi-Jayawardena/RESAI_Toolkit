@@ -2,13 +2,13 @@
 {% block content %}
 
 <!-- Title -->
-<center><h2 style="margin-top: 30px; font-size: 2rem;">🧠 Context-Aware Bias Detection (CABM)</h2></center>
+<center><h2 style="margin-top: 30px; font-size: 2rem;">Context-Aware Bias Detection (CABM)</h2></center>
 
 <!-- Overview Section -->
 <section class="explanation" style="margin-top: 25px;">
   <h3>📌 What is CABM?</h3>
   <p>
-    The <strong>Context-Aware Bias Metric (CABM)</strong> is a custom metric designed to detect gender bias in contextual word embeddings like BERT. Unlike traditional methods, it blends:
+    The <strong>Context-Aware Bias Metric (CABM)</strong> is a custom metric designed to detect gender bias in contextual word embeddings.Fetures:
   </p>
   <ul class="bias-list">
     <li><strong>PMI Bias:</strong> Statistical co-occurrence between pronouns and occupations.</li>
@@ -32,6 +32,12 @@
       <label><input type="radio" name="mode" value="full_pipeline"> Original Dataset</label>
     </div>
 
+    <!-- Explanation Note -->
+    <div style="margin-top: 10px; font-size: 0.95em; background: #f0f8ff; padding: 10px; border-left: 4px solid #0077cc;">
+      <p><strong>📁 Feature Dataset:</strong> Must contain <code>PMI_Bias</code>, <code>Cosine_Bias</code>, and <code>Contextual_Bias</code> columns.</p>
+      <p><strong>📝 Original Dataset:</strong> Must contain <code>sentence</code>, <code>pronoun</code>, <code>occupation</code>, and <code>gender</code> columns for full CABM processing.</p>
+    </div>
+
     <label for="file" style="margin-top: 20px;"><strong>Upload CSV File:</strong></label>
     <input type="file" name="file" id="file" accept=".csv" required>
 
@@ -39,6 +45,7 @@
     <input type="submit" value="🔍 Run CABM Analysis">
   </form>
 </section>
+
 
 <!-- Results Section -->
 {% if results %}
